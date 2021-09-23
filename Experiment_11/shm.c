@@ -9,7 +9,6 @@ int main(){
     char* str = (char*) shmat (shmId, (void*)0, 0);
     //int* str = (int*) shmat (shmld, (void*)0, 0);
 
-    char str[1024] ;
     int choice;
     while(1) {
         printf("\n1. Write\n2. Read\n3. Stop\nEnter Choice: ");
