@@ -12,13 +12,12 @@ int main(){
     char str[1024] ;
     int choice;
     while(1) {
-        printf("\n1. Read\n2. Write\n3. Stop\nEnter Choice: ");
+        printf("\n1. Write\n2. Read\n3. Stop\nEnter Choice: ");
         scanf("%d",&choice);
         switch(choice){
             case 1: int data;// = rand();
                     printf("Data for the shared memory: ");//, data);
                     scanf("%d",&data);
-                    *str = data;
                     sprintf(str,"%d",data);
                     break;
             case 2: printf("\nValue in the Shared Memory: %s\n",str);
