@@ -1,25 +1,24 @@
-#include<stdlib.h>
-#include<unistd.h>
-#include<stdio.h>
-#include<wait.h>
+#include <stdio.h>
+#include <unistd.h>
+#include <sys/wait.h>
 
-int main(){
-    int n ;
-    int i = 0;
-    int p = 0;
-    int ch = 0;
-    printf("Enter the number of process to be created: ");
-    scanf("%d", &n);
-
-    for(i =0; i<n ; i++){
-        p++;
-        if(ch == 0){
-            printf("Line %d:  Process id: %d, Parent id: %d \n",p,getpid(),getppid());
-            ch = fork();
-        }else{
-            break;
+int main() {
+	int n;
+	printf("Enter the value of N: ");
+	scanf("%d", &n);
+	printf("\nParent pid (Main process) %d at level 0\n", getpid());
+	
+	for(int i = 1; i <= n; i++)
+		if(fork() == 0) // CHILD 1
+			printf("Child pid %d from parent pid %d at level %d\n", getpid(), getppid(), i);
+		else{ 
+            if(fork() == 0){ // CHILD 2
+                printf("Child pid %d from parent pid %d at level %d\n", getpid(), getppid(), i);
+            }
+                else { // PARENT
+                    wait(NULL);
+                    break;
+                }
         }
-    }
-    wait(NULL);
     return 0;
 }
