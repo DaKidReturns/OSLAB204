@@ -146,25 +146,34 @@ int lru(int *ps, int n, int fr){
     return fault;
 }
 
-int get_lfu_index(int* ps, int n, int* pf, int fr, int i, int* freq_array){
+struct rt{
+    int a;
+    int b;
+};
+
+struct rt get_lfu_index(int* ps, int n, int* pf, int fr, int i, int* freq_arr,int* fifo_arr){
     int pos = -1;
     int min = INT_MAX;
 
+    int t_freq_arr[fr];
+    for(int i=0; i<fr; i++) t_freq_arr[i] = freq_arr[fifo_arr[i]];
     for(int j=0; j<fr; j++){
-        if( freq_array[j] < min){
-            min = freq_array[j];
+        if( t_freq_arr[j] < min){
+            min = t_freq_arr[j];
             //printf("Min freq: %d of %d\n",pf[j],min);
             pos = j;
         }
     } 
+    struct rt r = {fifo_arr[pos], pos};
 
-    return pos;
+    return r;//struct rt {fifo_arr[pos],pos};
 }
 
 int lfu(int* ps, int n, int fr){
-    int i,j,k,fault = 0,fl = 0;
+    int i,j,k,fault = 0,fl = 0,fp = 0;
     int *page_frame = (int*)malloc(sizeof(int)*fr);
-    int *freq_arr = (int*)malloc (sizeof(int)*fr); for(int i = 0;i<fr;i++) freq_arr[i]=0;
+    int *freq_arr = (int*)malloc (sizeof(int)*fr); for(int i=0; i<fr; i++) freq_arr[i]=0;
+    int *fifo_arr = (int*)malloc (sizeof(int)*fr); for(int i=0; i<fr; i++) fifo_arr[i]=-1;
 
     for(i=0;i<fr;i++) page_frame[i] = -1;
     for(i=0;i<n;i++){ // Iterate through the page string
@@ -180,11 +189,13 @@ int lfu(int* ps, int n, int fr){
             if(fflag){  // If the page is not found.
                 page_frame[fl] = ps[i];
                 freq_arr[fl] = 1;
+                fifo_arr[fl] = fl;
                 fault++;
                 show_page_frame(page_frame,fr,fl);
                 fl++;
             }
         }
+
         else{ // Page frame is full
             for(j=0;j<fr;j++){
                 if(ps[i]==page_frame[j]){
@@ -194,13 +205,19 @@ int lfu(int* ps, int n, int fr){
                 }
             }
             if(fflag){
-                int pos = get_lfu_index(ps,n,page_frame, fr, i,freq_arr);
-                for(int p=pos; p<fr; p++){
-                    page_frame[p] = page_frame[p+1];
-                    freq_arr[p] = freq_arr[p+1];
+                struct rt pos_struct = get_lfu_index(ps,n,page_frame, fr, i,freq_arr,fifo_arr);
+
+                int pos = pos_struct.a;
+                int pos_fifo = pos_struct.b;
+
+                for(int p=pos_fifo; p<fr; p++){
+                    //page_frame[p] = page_frame[p+1];
+                    fifo_arr[p] = fifo_arr[p+1];
                 }
-                page_frame[fr-1] = ps[i];
-                freq_arr[fr-1] = 1; 
+
+                page_frame[pos] = ps[i];
+                freq_arr[pos] = 1; 
+                fifo_arr[fr-1] = pos;
                 fault++;
                 show_page_frame(page_frame,fr,i);
             }
