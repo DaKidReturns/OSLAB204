@@ -7,15 +7,15 @@ int main(){
     key_t token = ftok("SHAREDMEM",69);
     int shmId = shmget(token, 1024, 0666|IPC_CREAT);
     char* str = (char*) shmat (shmId, (void*)0, 0);
-    //int* str = (int*) shmat (shmld, (void*)0, 0);
+ 
 
     int choice;
     while(1) {
         printf("\n1. Write\n2. Read\n3. Stop\nEnter Choice: ");
         scanf("%d",&choice);
         switch(choice){
-            case 1: int data;// = rand();
-                    printf("Data for the shared memory: ");//, data);
+            case 1: int data;
+                    printf("Data to enter in the shared memory: ");
                     scanf("%d",&data);
                     sprintf(str,"%d",data);
                     break;
